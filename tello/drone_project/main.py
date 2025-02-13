@@ -150,6 +150,11 @@ def setup_model():
         from object_detector.models.CSRTTracker import CSRTTracker
         model = CSRTTracker(interface)
         return
+    
+    if model_type == "YoLoV8Tracker":
+        from object_detector.models.YoLoV8Tracker import YoLoV8Tracker
+        model = YoLoV8Tracker(interface)
+        return
 
     raise ImportError(f"Model {model_type} is not implemented.")
 
