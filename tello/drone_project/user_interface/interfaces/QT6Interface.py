@@ -25,7 +25,8 @@ max_distances = {
 }
 
 # Load YOLOv8 Model
-MODEL_PATH = r"C:\Users\arees\OneDrive\Desktop\Object_Tracking_Tello\tello\drone_project\local\YoloV8Tracker_model.pt"
+MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'local', 'YoloV8Tracker_model.pt')
+# MODEL_PATH = r"C:\Users\arees\OneDrive\Desktop\Object_Tracking_Tello\tello\drone_project\local\YoloV8Tracker_model.pt"
 yolo_model = YOLO(MODEL_PATH)
 
 # 

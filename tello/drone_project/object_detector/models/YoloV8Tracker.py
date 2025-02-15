@@ -6,10 +6,9 @@ import numpy as np
 from ultralytics import YOLO
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-sys.path.append(r"C:\Users\arees\OneDrive\Desktop\Object_Tracking_Tello\tello\drone_project\navigation_plan\navigators")
 
 from config.settings import debug
-from GridNavigator import GridNavigator
+from navigation_plan.navigators.GridNavigator import GridNavigator
 
 #
 # The "YoloV8Tracker" class
@@ -29,7 +28,10 @@ class YoloV8Tracker:
         self.draw_boundary = draw_boundary
 
         # Load YOLOv8 model (ensure correct model path)
-        model_path = r"C:\Users\arees\OneDrive\Desktop\Object_Tracking_Tello\tello\drone_project\local\YoloV8Tracker_model.pt"
+        # model_path = r"C:\Users\arees\OneDrive\Desktop\Object_Tracking_Tello\tello\drone_project\local\YoloV8Tracker_model.pt"
+        # model_path = str(sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../", 'local/YoloV8Tracker_model.pt'))))
+        model_path = '/home/stranger/Documents/pkg/_teamup/areesha/eagle-wings-drone-project/tello/drone_project/local/YoloV8Tracker_model.pt'
+        print(model_path)
         self.model = YOLO(model_path)  # Load your trained YOLOv8 model
 
         # Globals

@@ -1,4 +1,5 @@
-path: C:\Users\arees\OneDrive\Desktop\Object_Tracking_Tello\tello\drone_project\data\areesha  # Root dataset directory
+# path: C:\Users\arees\OneDrive\Desktop\Object_Tracking_Tello\tello\drone_project\data\areesha  # Root dataset directory
+path: /home/stranger/Documents/pkg/_teamup/areesha/eagle-wings-drone-project/tello/drone_project/data/areesha
 train: images/train
 val: images/val
 nc: 1  # Number of classes (only "areesha")
