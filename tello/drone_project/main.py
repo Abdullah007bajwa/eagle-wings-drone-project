@@ -1,4 +1,4 @@
-# 
+#  
 # Imports
 # 
 
@@ -36,12 +36,6 @@ navigator = None
 guide = None
 
 # 
-# Instantiate "tello" 
-# 
-
-
-
-# 
 # Instances Setup
 # 
 
@@ -50,7 +44,6 @@ def setup_tello():
     global tello
 
     if camera_type == "TelloCam":
-
         from djitellopy import Tello
 
         tello = Tello()
@@ -60,7 +53,7 @@ def setup_tello():
         
         return
 
-    print("[INFO] Tello not requried!")
+    print("[INFO] Tello not required!")
 
 def tello_shutdown():
     global tello
@@ -92,7 +85,6 @@ def setup_camera():
 
     raise ImportError(f"Camera {camera_type} is not implemented.")
 
-
 # Controller
 def setup_controller():
     global controller
@@ -117,7 +109,6 @@ def setup_interface():
     global app, interface
     
     if interface_type == "QT6Interface":
-        # QT App
         from PyQt6.QtWidgets import QApplication
         app = QApplication(sys.argv)
         
@@ -151,14 +142,13 @@ def setup_model():
         model = CSRTTracker(interface)
         return
     
-    if model_type == "YoLoV8Tracker":
-        from object_detector.models.YoLoV8Tracker import YoLoV8Tracker
-        model = YoLoV8Tracker(interface)
+    if model_type == "YoloV8Tracker":
+        from object_detector.models.YoloV8Tracker import YoloV8Tracker
+        model = YoloV8Tracker(interface)
         return
 
     raise ImportError(f"Model {model_type} is not implemented.")
 
-    
 # Navigator
 def setup_navigator():
     global navigator
@@ -182,7 +172,6 @@ def setup_guide():
 
 # Setup
 def setup():
-
     interface.set_camera(camera)
 
     interface.add_on_boundary(model.set_object)
@@ -192,7 +181,6 @@ def setup():
 
 # Loop
 def loop():
-
     if interface_type == "QT6Interface":
         from PyQt6.QtCore import QTimer
         from config.settings import MAIN_LOOP_RATE
@@ -212,14 +200,12 @@ def loop():
         return
     
     if interface_type == "CV2Interface":
-
         try:
             while not interface.is_closed:
                 interface.loop()
                 guide.loop()
                 controller.loop()
                 
-                # CPU hog delay
                 time.sleep(0.01)
 
         except KeyboardInterrupt:  print("Kill Call")
