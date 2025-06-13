@@ -1,27 +1,25 @@
-#  
-# Imports
-# 
 
 import sys, os, time
 from dotenv import load_dotenv
 
-from config.settings import debug
+from drone_project.config.settings import debug
 
-# 
+#  
 # Environment
 # 
 
 load_dotenv()
 
-DEFAULT_CAMERA    = "WebCam"
+# Set defaults – note that LightCNNTracker is now prioritized.
+DEFAULT_CAMERA    = "TelloCam"
 DEFAULT_INTERFACE = "QT6Interface"
-DEFAULT_MODEL     = "DaSiamMultipleTracker"
+DEFAULT_MODEL     = "DaSiamRPNTracker"  
 
 camera_type    = sys.argv[1] if len(sys.argv) > 1 else os.getenv("CAMERA",    DEFAULT_CAMERA   )
 interface_type = sys.argv[2] if len(sys.argv) > 2 else os.getenv("INTERFACE", DEFAULT_INTERFACE)
 model_type     = sys.argv[3] if len(sys.argv) > 3 else os.getenv("MODEL",     DEFAULT_MODEL    )
 
-# 
+#  
 # Globals
 # 
 
@@ -35,7 +33,7 @@ model = None
 navigator = None
 guide = None
 
-# 
+#  
 # Instances Setup
 # 
 
@@ -48,8 +46,10 @@ def setup_tello():
 
         tello = Tello()
         tello.connect()
-        if bool(int(os.getenv("AUTO_STREAMON", True))): tello.streamon()
-        if bool(int(os.getenv("AUTO_TAKEOFF", False))): tello.takeoff()
+        if bool(int(os.getenv("AUTO_STREAMON", True))): 
+            tello.streamon()
+        if bool(int(os.getenv("AUTO_TAKEOFF", False))): 
+            tello.takeoff()
         
         return
 
@@ -67,19 +67,19 @@ def tello_shutdown():
 # Camera
 def setup_camera():
     global tello, camera
-
+    print("\n[DEBUG] Initializing camera...")
     if camera_type == "TelloCam":
-        from object_detector.input.TelloCam import TelloCam
+        from drone_project.object_detector.input.TelloCam import TelloCam
         camera = TelloCam(tello)
         return
 
     if camera_type == "SimCam":
-        from object_detector.input.SimCam import SimCam
+        from drone_project.object_detector.input.SimCam import SimCam
         camera = SimCam()
         return
 
     if camera_type == "WebCam":
-        from object_detector.input.WebCam import WebCam
+        from drone_project.object_detector.input.WebCam import WebCam
         camera = WebCam()
         return
 
@@ -123,31 +123,33 @@ def setup_interface():
     
     raise ImportError(f"Interface {interface_type} is not implemented.")
 
-# Model
+# Model – Prioritize LightCNNTracker, fallback to the model specified if an error occurs.
 def setup_model():
     global model
-
-    if model_type == "DaSiamMultipleTracker":
-        from object_detector.models.DaSiamMultipleTracker import DaSiamMultipleTracker
-        model = DaSiamMultipleTracker(interface)
-        return
-    
-    if model_type == "DaSiamRPNTracker":
-        from object_detector.models.DaSiamRPNTracker import DaSiamRPNTracker
-        model = DaSiamRPNTracker(interface)
-        return
-    
-    if model_type == "CSRTTracker":
-        from object_detector.models.CSRTTracker import CSRTTracker
-        model = CSRTTracker(interface)
-        return
-    
-    if model_type == "YoloV8Tracker":
-        from object_detector.models.YoloV8Tracker import YoloV8Tracker
-        model = YoloV8Tracker(interface)
-        return
-
-    raise ImportError(f"Model {model_type} is not implemented.")
+    try:
+        from drone_project.object_detector.models.LightCNNTracker import LightCNNTracker
+        model = LightCNNTracker(interface)
+        print("LightCNNTracker loaded successfully.")
+    except Exception as e:
+        print("Error loading LightCNNTracker:", e)
+        # Fallback based on the specified model_type:
+        if model_type == "DaSiamMultipleTracker":
+            from drone_project.object_detector.models.DaSiamMultipleTracker import DaSiamMultipleTracker
+            model = DaSiamMultipleTracker(interface)
+        elif model_type == "DaSiamRPNTracker":
+            from drone_project.object_detector.models.DaSiamRPNTracker import DaSiamRPNTracker
+            model = DaSiamRPNTracker(interface)
+        elif model_type == "CSRTTracker":
+            from drone_project.object_detector.models.CSRTTracker import CSRTTracker
+            model = CSRTTracker(interface)
+        elif model_type == "YoloV8Tracker":
+            from drone_project.object_detector.models.YoloV8Tracker import YoloV8Tracker
+            model = YoloV8Tracker(interface)
+        else:
+            # Default fallback
+            from drone_project.object_detector.models.DaSiamMultipleTracker import DaSiamMultipleTracker
+            model = DaSiamMultipleTracker(interface)
+        print("Fallback model loaded successfully.")
 
 # Navigator
 def setup_navigator():
@@ -155,8 +157,6 @@ def setup_navigator():
 
     from navigation_plan.navigators.GridNavigator import GridNavigator
     navigator = GridNavigator(model)
-
-    pass
     
 # Guide
 def setup_guide():
@@ -166,7 +166,7 @@ def setup_guide():
     guide = GridGuide(navigator, controller)
     
 
-# 
+#  
 # App Setup and Loop
 # 
 
@@ -188,7 +188,6 @@ def loop():
         def _loop():
             guide.loop()
             controller.loop()
-            pass
         
         guide_timer = QTimer()
         guide_timer.timeout.connect(_loop)
@@ -205,18 +204,19 @@ def loop():
                 interface.loop()
                 guide.loop()
                 controller.loop()
-                
                 time.sleep(0.01)
 
-        except KeyboardInterrupt:  print("Kill Call")
+        except KeyboardInterrupt:
+            print("Kill Call")
         except Exception as e:
             print("Exception !", e)
-            if debug: raise e
+            if debug: 
+                raise e
         finally:
             tello_shutdown()
         return
 
-# 
+#  
 # Main
 # 
 

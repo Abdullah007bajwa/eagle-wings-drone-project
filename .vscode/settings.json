@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./tello/drone_project",
+        "./tello/drone_project/object_detector/models"
+    ]
+}

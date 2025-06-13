@@ -55,3 +55,13 @@ class Camera:
 
     def __del__(self):
         self.stop()
+        
+    def get_frame(self):
+        """
+        Captures a frame and encodes it as JPEG bytes for HTTP streaming.
+        """
+        frame = self.frame()
+        ret, buffer = cv2.imencode('.jpg', frame)
+        if not ret:
+            raise FrameCaptureError("Failed to encode frame to JPEG.")
+        return buffer.tobytes()
