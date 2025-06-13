@@ -1,3 +1,4 @@
 **/__pycache__/
 logs/
 yolov5s.pt
+/drone_project/object_detector/LightCNN_29Layers_checkpoint.pth
