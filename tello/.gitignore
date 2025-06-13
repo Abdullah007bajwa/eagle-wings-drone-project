@@ -140,6 +140,9 @@ Desktop.ini
 logs/
 yolov5s.pt
 /drone_project/object_detector/LightCNN_29Layers_checkpoint.pth
+/drone_project/dist/SiamRPNOTB.model
+/drone_project/runs/detect_train2/weights/best.pt
+/drone_project/runs/detect_train2/weights/last.pt
 # Ignore all model weights and checkpoints
 *.pth
 *.pt
